@@ -1,0 +1,9 @@
+/* App.css can remain empty as index.css handles globals */
+.full-screen-center {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
