@@ -261,13 +261,13 @@ sequenceDiagram
     <h3>Guard de ruta protegida</h3>
     <div class="mermaid">
 flowchart TD
-    A([Usuario navega a /dashboard]) --> B{¿Existe practicante_token\nen localStorage?}
-    B -- No --> C[navigate /login]
-    B -- Sí --> D{¿Existe practicante_generation?}
-    D -- No --> E[Muestra modal\nde primera vez]
-    E --> F[Usuario selecciona generación\ny frase de estado]
-    F --> G[Guarda en localStorage\ny fellows]
-    D -- Sí --> H[Renderiza Dashboard normal]
+    A([Usuario navega a /dashboard]) --> B{Existe token en localStorage?}
+    B -- No --> C[navigate a /login]
+    B -- Si --> D{Existe practicante_generation?}
+    D -- No --> E[Muestra modal de bienvenida]
+    E --> F[Usuario elige generacion y frase]
+    F --> G[Guarda en localStorage y fellows]
+    D -- Si --> H[Renderiza Dashboard normal]
     G --> H
     </div>
   </div>
@@ -284,7 +284,7 @@ flowchart TD
 erDiagram
     generaciones {
         int id PK
-        int numero UK
+        int numero
         varchar nombre
         tinyint activa
         date inicio
@@ -294,11 +294,10 @@ erDiagram
     usuarios {
         int id PK
         varchar nombre
-        varchar email UK
+        varchar email
         int generacion_id FK
         tinyint activo
         varchar estado_personal
-        text avatar_url
         datetime created_at
     }
 
@@ -310,7 +309,6 @@ erDiagram
         text hacer_manana
         varchar estado_animo
         tinyint necesita_ayuda
-        text desc_ayuda
         int palabras_count
         datetime timestamp
     }
@@ -338,20 +336,20 @@ erDiagram
     <h3>Flujo de cálculo y celebración</h3>
     <div class="mermaid">
 flowchart TD
-    A([DashboardLayout mount / nueva bitácora]) --> B[calculateUserBadges\nbadgeHelper.js]
-    B --> C1[Hitos de cantidad\n1·7·15·21·30·45·60·75·90 bitácoras]
-    B --> C2[Rachas consecutivas\n3·7·14·30·45·60·75·90 días]
-    B --> C3[Volumen palabras\n5k · 10k · 25k]
-    B --> C4[Horario de escritura\nnoche · madrugada · mañana]
-    B --> C5[Resiliencia\npausa y regreso]
-    B --> C6[Análisis de texto\nGit · cPanel · Wiki · Podcast · Bugs]
-    B --> C7[Especiales\nCreador · Líder · Generación]
+    A([DashboardLayout mount o nueva bitacora]) --> B[calculateUserBadges - badgeHelper.js]
+    B --> C1[Hitos de cantidad: 1 7 15 21 30 45 60 75 90 bitacoras]
+    B --> C2[Rachas consecutivas: 3 7 14 30 45 60 75 90 dias]
+    B --> C3[Volumen palabras: 5k 10k 25k]
+    B --> C4[Horario: noche - madrugada - manana]
+    B --> C5[Resiliencia: pausa y regreso]
+    B --> C6[Analisis texto: Git cPanel Wiki Podcast Bugs]
+    B --> C7[Especiales: Creador Lider Generacion]
 
     C1 & C2 & C3 & C4 & C5 & C6 & C7 --> D[Array de IDs ganados]
-    D --> E{¿Hay IDs no en\nbadges_acknowledged?}
+    D --> E{IDs no en badges acknowledged?}
     E -- No --> F([Nada que celebrar])
-    E -- Sí --> G[CelebrationOverlay\n3D coin + confetti + llamas]
-    G --> H[Usuario presiona Excelente 🚀]
+    E -- Si --> G[CelebrationOverlay 3D coin confetti llamas]
+    G --> H[Usuario presiona Excelente]
     H --> I[Agrega ID a acknowledged]
     I --> E
     </div>
@@ -440,11 +438,11 @@ flowchart TD
     <div class="mermaid">
 graph LR
     CLIENT[React Frontend]
-    CLIENT -->|GET| FL3[fetchLogs.php\nBitácoras + Fellows + Badges]
-    CLIENT -->|POST| SL3[saveLog.php\nGuardar bitácora]
-    CLIENT -->|POST| SA3[send_alert.php\nAlerta emocional email]
-    CLIENT -->|GET| ST3[stats.php\nEstadísticas públicas]
-    FL3 & SL3 & SA3 & ST3 --> DB3[(MySQL\nalphadocere_Vit)]
+    CLIENT -->|GET| FL3[fetchLogs.php: Bitacoras Fellows Badges]
+    CLIENT -->|POST| SL3[saveLog.php: Guardar bitacora]
+    CLIENT -->|POST| SA3[send_alert.php: Alerta email]
+    CLIENT -->|GET| ST3[stats.php: Estadisticas]
+    FL3 & SL3 & SA3 & ST3 --> DB3[(MySQL alphadocere_Vit)]
     SA3 -->|PHPMailer| EMAIL3[Admin Email]
     </div>
   </div>
@@ -503,18 +501,18 @@ graph LR
     <h3>Árbol de rutas (React Router DOM v7)</h3>
     <div class="mermaid">
 graph TD
-    ROOT["/ (BrowserRouter)"]
-    ROOT --> HOME2["/ → Home.jsx\n(Pública)"]
-    ROOT --> LOGIN2["/login → Login.jsx\n(Pública)"]
-    ROOT --> DASH["/dashboard → DashboardLayout\n(Protegida)"]
-    DASH --> D_HOME["/dashboard → DashboardHome"]
-    DASH --> D_BIT["/dashboard/bitacora → Bitacora"]
-    DASH --> D_HIST["/dashboard/historial → Historial"]
-    DASH --> D_INS["/dashboard/insignias → Insignias"]
-    DASH --> D_COMP["/dashboard/companeros → Companeros"]
-    DASH --> D_PROF["/dashboard/perfil → Profile"]
-    DASH --> D_ADM["/dashboard/admin → AdminPanel"]
-    ROOT --> WILD["/* → Navigate to /"]
+    ROOT["BrowserRouter - raiz"]
+    ROOT --> HOME2["/  Home.jsx - Publica"]
+    ROOT --> LOGIN2["/login  Login.jsx - Publica"]
+    ROOT --> DASH["/dashboard  DashboardLayout - Protegida"]
+    DASH --> D_HOME["/dashboard  DashboardHome"]
+    DASH --> D_BIT["/dashboard/bitacora  Bitacora"]
+    DASH --> D_HIST["/dashboard/historial  Historial"]
+    DASH --> D_INS["/dashboard/insignias  Insignias"]
+    DASH --> D_COMP["/dashboard/companeros  Companeros"]
+    DASH --> D_PROF["/dashboard/perfil  Profile"]
+    DASH --> D_ADM["/dashboard/admin  AdminPanel"]
+    ROOT --> WILD["Wildcard - redirige a /"]
     </div>
   </div>
 
@@ -529,16 +527,16 @@ graph TD
     HOME3 --> NAV[Navbar]
     BR --> LOG[Login]
     BR --> DLA[DashboardLayout]
-    DLA --> OUT[Outlet — Página activa]
+    DLA --> OUT[Outlet - Pagina activa]
     DLA --> OTD[OnThisDay sidebar]
     DLA --> GEN[GenSetupModal]
     DLA --> CEL[CelebrationOverlay]
     OUT --> PG1[DashboardHome]
     OUT --> PG2[Bitacora]
     OUT --> PG3[Historial]
-    OUT --> PG4[Insignias → BadgeViewer]
-    OUT --> PG5[Companeros → BadgeViewer]
-    OUT --> PG6[Profile → BadgeViewer]
+    OUT --> PG4[Insignias con BadgeViewer]
+    OUT --> PG5[Companeros con BadgeViewer]
+    OUT --> PG6[Profile con BadgeViewer]
     OUT --> PG7[AdminPanel]
     </div>
   </div>
