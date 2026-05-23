@@ -282,47 +282,38 @@ flowchart TD
     <h3>Diagrama Entidad-Relación</h3>
     <div class="mermaid">
 erDiagram
-    generaciones {
+    GENERACIONES {
         int id PK
         int numero
         varchar nombre
         tinyint activa
-        date inicio
-        date fin
     }
-
-    usuarios {
+    USUARIOS {
         int id PK
         varchar nombre
         varchar email
         int generacion_id FK
         tinyint activo
-        varchar estado_personal
         datetime created_at
     }
-
-    bitacoras {
+    BITACORAS {
         int id PK
         int usuario_id FK
         date fecha
         text hecho_hoy
-        text hacer_manana
         varchar estado_animo
-        tinyint necesita_ayuda
         int palabras_count
         datetime timestamp
     }
-
-    insignias_desbloqueadas {
+    INSIGNIAS_DESBLOQUEADAS {
         int id PK
         int usuario_id FK
         int insignia_id
         datetime desbloqueada_at
     }
-
-    generaciones ||--o{ usuarios : "pertenece a"
-    usuarios ||--o{ bitacoras : "escribe"
-    usuarios ||--o{ insignias_desbloqueadas : "desbloquea"
+    GENERACIONES ||--o{ USUARIOS : pertenece
+    USUARIOS ||--o{ BITACORAS : escribe
+    USUARIOS ||--o{ INSIGNIAS_DESBLOQUEADAS : desbloquea
     </div>
   </div>
 </div>
@@ -336,21 +327,26 @@ erDiagram
     <h3>Flujo de cálculo y celebración</h3>
     <div class="mermaid">
 flowchart TD
-    A([DashboardLayout mount o nueva bitacora]) --> B[calculateUserBadges - badgeHelper.js]
-    B --> C1[Hitos de cantidad: 1 7 15 21 30 45 60 75 90 bitacoras]
-    B --> C2[Rachas consecutivas: 3 7 14 30 45 60 75 90 dias]
-    B --> C3[Volumen palabras: 5k 10k 25k]
-    B --> C4[Horario: noche - madrugada - manana]
-    B --> C5[Resiliencia: pausa y regreso]
-    B --> C6[Analisis texto: Git cPanel Wiki Podcast Bugs]
-    B --> C7[Especiales: Creador Lider Generacion]
-
-    C1 & C2 & C3 & C4 & C5 & C6 & C7 --> D[Array de IDs ganados]
-    D --> E{IDs no en badges acknowledged?}
+    A([DashboardLayout mount o nueva bitacora]) --> B[calculateUserBadges]
+    B --> C1[Hitos de cantidad]
+    B --> C2[Rachas consecutivas]
+    B --> C3[Volumen de palabras]
+    B --> C4[Horario de escritura]
+    B --> C5[Resiliencia]
+    B --> C6[Analisis de texto]
+    B --> C7[Especiales]
+    C1 --> D[Array de IDs ganados]
+    C2 --> D
+    C3 --> D
+    C4 --> D
+    C5 --> D
+    C6 --> D
+    C7 --> D
+    D --> E{IDs no reconocidos aun}
     E -- No --> F([Nada que celebrar])
-    E -- Si --> G[CelebrationOverlay 3D coin confetti llamas]
+    E -- Si --> G[CelebrationOverlay con confetti]
     G --> H[Usuario presiona Excelente]
-    H --> I[Agrega ID a acknowledged]
+    H --> I[Badge agregado a acknowledged]
     I --> E
     </div>
   </div>
@@ -436,13 +432,16 @@ flowchart TD
   <div class="diagram-card">
     <h3>Mapa de endpoints</h3>
     <div class="mermaid">
-graph LR
+flowchart LR
     CLIENT[React Frontend]
-    CLIENT -->|GET| FL3[fetchLogs.php: Bitacoras Fellows Badges]
-    CLIENT -->|POST| SL3[saveLog.php: Guardar bitacora]
-    CLIENT -->|POST| SA3[send_alert.php: Alerta email]
-    CLIENT -->|GET| ST3[stats.php: Estadisticas]
-    FL3 & SL3 & SA3 & ST3 --> DB3[(MySQL alphadocere_Vit)]
+    CLIENT -->|GET| FL3[fetchLogs]
+    CLIENT -->|POST| SL3[saveLog]
+    CLIENT -->|POST| SA3[send alert]
+    CLIENT -->|GET| ST3[stats]
+    FL3 --> DB3[(MySQL)]
+    SL3 --> DB3
+    SA3 --> DB3
+    ST3 --> DB3
     SA3 -->|PHPMailer| EMAIL3[Admin Email]
     </div>
   </div>
@@ -500,44 +499,46 @@ graph LR
   <div class="diagram-card">
     <h3>Árbol de rutas (React Router DOM v7)</h3>
     <div class="mermaid">
-graph TD
-    ROOT["BrowserRouter - raiz"]
-    ROOT --> HOME2["/  Home.jsx - Publica"]
-    ROOT --> LOGIN2["/login  Login.jsx - Publica"]
-    ROOT --> DASH["/dashboard  DashboardLayout - Protegida"]
-    DASH --> D_HOME["/dashboard  DashboardHome"]
-    DASH --> D_BIT["/dashboard/bitacora  Bitacora"]
-    DASH --> D_HIST["/dashboard/historial  Historial"]
-    DASH --> D_INS["/dashboard/insignias  Insignias"]
-    DASH --> D_COMP["/dashboard/companeros  Companeros"]
-    DASH --> D_PROF["/dashboard/perfil  Profile"]
-    DASH --> D_ADM["/dashboard/admin  AdminPanel"]
-    ROOT --> WILD["Wildcard - redirige a /"]
+flowchart TD
+    ROOT[BrowserRouter]
+    ROOT --> HOME2[slash Home publica]
+    ROOT --> LOGIN2[slash login publica]
+    ROOT --> DASH[slash dashboard protegida]
+    DASH --> D_HOME[index DashboardHome]
+    DASH --> D_BIT[bitacora Bitacora]
+    DASH --> D_HIST[historial Historial]
+    DASH --> D_INS[insignias Insignias]
+    DASH --> D_COMP[companeros Companeros]
+    DASH --> D_PROF[perfil Profile]
+    DASH --> D_ADM[admin AdminPanel]
+    ROOT --> WILD[Wildcard a raiz]
     </div>
   </div>
 
   <div class="diagram-card">
     <h3>Árbol de componentes</h3>
     <div class="mermaid">
-graph TD
-    APP[App.jsx]
-    APP --> TP[ThemeProvider]
+flowchart TD
+    APP[App] --> TP[ThemeProvider]
     TP --> BR[BrowserRouter]
     BR --> HOME3[Home]
-    HOME3 --> NAV[Navbar]
     BR --> LOG[Login]
     BR --> DLA[DashboardLayout]
-    DLA --> OUT[Outlet - Pagina activa]
-    DLA --> OTD[OnThisDay sidebar]
+    HOME3 --> NAV[Navbar]
+    DLA --> OUT[Outlet]
+    DLA --> OTD[OnThisDay]
     DLA --> GEN[GenSetupModal]
     DLA --> CEL[CelebrationOverlay]
     OUT --> PG1[DashboardHome]
     OUT --> PG2[Bitacora]
     OUT --> PG3[Historial]
-    OUT --> PG4[Insignias con BadgeViewer]
-    OUT --> PG5[Companeros con BadgeViewer]
-    OUT --> PG6[Profile con BadgeViewer]
+    OUT --> PG4[Insignias]
+    OUT --> PG5[Companeros]
+    OUT --> PG6[Profile]
     OUT --> PG7[AdminPanel]
+    PG4 --> BV1[BadgeViewer]
+    PG5 --> BV2[BadgeViewer]
+    PG6 --> BV3[BadgeViewer]
     </div>
   </div>
 </div>
