@@ -1,165 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Kreative Vit — Diagramas del Sistema</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js"></script>
 <style>
-  :root {
-    --bg: #0d1117; --surface: #161b22; --border: #30363d;
-    --primary: #39ff14; --text: #e6edf3; --muted: #8b949e;
-    --accent: #00f0ff;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
-
-  header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 24px 40px; display: flex; align-items: center; gap: 16px;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo { font-size: 1.6rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-  .logo span { color: var(--accent); }
-  header p { color: var(--muted); font-size: 0.9rem; margin-left: auto; }
-
-  nav {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 0 40px; display: flex; gap: 4px; overflow-x: auto;
-  }
-  nav button {
-    background: transparent; border: none; color: var(--muted); cursor: pointer;
-    padding: 12px 20px; font-size: 0.9rem; font-weight: 600; border-bottom: 2px solid transparent;
-    transition: all 0.2s; white-space: nowrap;
-  }
-  nav button:hover { color: var(--text); }
-  nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-  main { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
-
-  .section { display: none; animation: fadeIn 0.3s ease; }
-  .section.visible { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
-  h2 span { color: var(--primary); }
-  .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 0.95rem; line-height: 1.6; }
-
-  .diagram-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 32px; margin-bottom: 28px; overflow-x: auto;
-  }
-  .diagram-card h3 { font-size: 1.1rem; margin-bottom: 20px; color: var(--accent); }
-  .mermaid { display: flex; justify-content: center; }
-
-  .badge-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
-  }
-  .badge-cat {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px;
-  }
-  .badge-cat h4 { font-size: 1rem; margin-bottom: 10px; }
-  .badge-cat ul { list-style: none; }
-  .badge-cat li { font-size: 0.85rem; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); }
-  .badge-cat li:last-child { border: none; }
-  .badge-cat li strong { color: var(--text); }
-
-  .api-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .api-table th { background: rgba(57,255,20,0.1); color: var(--primary); padding: 10px 14px; text-align: left; }
-  .api-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); }
-  .api-table td:first-child { color: var(--text); font-weight: 600; }
-  .method { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
-  .get { background: rgba(57,255,20,0.15); color: var(--primary); }
-  .post { background: rgba(0,240,255,0.15); color: var(--accent); }
+:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--primary:#39ff14;--text:#e6edf3;--muted:#8b949e;--accent:#00f0ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-size:1.6rem;font-weight:900;color:var(--primary)}.logo span{color:var(--accent)}
+header p{color:var(--muted);font-size:.9rem;margin-left:auto}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 40px;display:flex;gap:4px;overflow-x:auto}
+nav button{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:12px 18px;font-size:.9rem;font-weight:600;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+nav button:hover{color:var(--text)}
+nav button.active{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:1100px;margin:0 auto;padding:40px 24px}
+.section{display:none}
+.section.visible{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+h2{font-size:1.6rem;font-weight:800;margin-bottom:8px}
+h2 span{color:var(--primary)}
+.subtitle{color:var(--muted);margin-bottom:32px;font-size:.95rem;line-height:1.6}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:28px;overflow-x:auto}
+.card h3{font-size:1.1rem;margin-bottom:20px;color:var(--accent)}
+.mermaid{display:flex;justify-content:center;min-height:60px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.badge-cat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.badge-cat h4{font-size:1rem;margin-bottom:10px}
+.badge-cat ul{list-style:none}
+.badge-cat li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border)}
+.badge-cat li:last-child{border:none}
+.badge-cat li strong{color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+table th{background:rgba(57,255,20,.1);color:var(--primary);padding:10px 14px;text-align:left}
+table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted)}
+table td:first-child{color:var(--text);font-weight:600}
+.m{padding:3px 8px;border-radius:4px;font-size:.8rem;font-weight:700}
+.get{background:rgba(57,255,20,.15);color:var(--primary)}
+.post{background:rgba(0,240,255,.15);color:var(--accent)}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">Kreative <span>Vit</span></div>
-  <p>Documentación técnica — Diagramas del sistema</p>
+  <p>Diagramas técnicos del sistema</p>
 </header>
-
 <nav>
-  <button class="active" onclick="show('arquitectura', this)">🏗️ Arquitectura</button>
-  <button onclick="show('flujo', this)">🔄 Flujo de Datos</button>
-  <button onclick="show('auth', this)">🔐 Autenticación</button>
-  <button onclick="show('bd', this)">🗄️ Base de Datos</button>
-  <button onclick="show('insignias', this)">🏅 Insignias</button>
-  <button onclick="show('api', this)">📡 API</button>
-  <button onclick="show('rutas', this)">🗺️ Rutas</button>
+  <button class="active" onclick="show('arq',this)">🏗️ Arquitectura</button>
+  <button onclick="show('flujo',this)">🔄 Flujo de Datos</button>
+  <button onclick="show('auth',this)">🔐 Autenticación</button>
+  <button onclick="show('bd',this)">🗄️ Base de Datos</button>
+  <button onclick="show('ins',this)">🏅 Insignias</button>
+  <button onclick="show('api',this)">📡 API</button>
+  <button onclick="show('rutas',this)">🗺️ Rutas</button>
 </nav>
-
 <main>
 
 <!-- ARQUITECTURA -->
-<div id="arquitectura" class="section visible">
+<div id="arq" class="section visible">
   <h2>🏗️ <span>Arquitectura</span> General</h2>
-  <p class="subtitle">Visión de alto nivel de los componentes del sistema Kreative Vit y sus relaciones.</p>
-
-  <div class="diagram-card">
+  <p class="subtitle">Visión de alto nivel de los componentes del sistema.</p>
+  <div class="card">
     <h3>Stack por capas</h3>
     <div class="mermaid">
 graph TB
-    subgraph FRONTEND["⚛️ Frontend — React 19 + Vite 8"]
-        HOME[Home.jsx]
-        LOGIN[Login.jsx]
-        subgraph DASHBOARD["Dashboard (ruta protegida)"]
+    subgraph FE["Frontend React 19 + Vite 8"]
+        H[Home] 
+        L[Login]
+        subgraph DB2["Dashboard protegido"]
             DL[DashboardLayout]
-            BIT[Bitacora]
-            HIST[Historial]
-            INS[Insignias]
-            COMP[Compañeros]
-            PROF[Profile]
-            ADM[AdminPanel]
+            B[Bitacora]
+            HI[Historial]
+            IN[Insignias]
+            CO[Companeros]
+            PR[Profile]
+            AD[AdminPanel]
         end
-        CTX[ThemeContext]
-        BADGE[badgeHelper.js]
+        TC[ThemeContext]
+        BH[badgeHelper]
     end
-
-    subgraph BACKEND["🐘 Backend — PHP 8.3"]
-        FL[fetchLogs.php]
-        SL[saveLog.php]
-        SA[send_alert.php]
-        ST[stats.php]
-        CFG[config.php]
+    subgraph BE["Backend PHP 8.3"]
+        FL[fetchLogs]
+        SL[saveLog]
+        SA[sendAlert]
+        ST[stats]
     end
-
-    subgraph DB["🗄️ MySQL"]
-        AUTH_DB[(alphadocere_auth_system)]
-        VIT_DB[(alphadocere_Vit)]
+    subgraph DB["MySQL"]
+        A1[(auth_system)]
+        V1[(alphadocere_Vit)]
     end
-
-    subgraph STORAGE["💾 localStorage"]
-        LS[Bitácoras · Fellows · Token · Badges]
-    end
-
-    FRONTEND -->|HTTP REST| BACKEND
-    BACKEND --> DB
-    FRONTEND <--> STORAGE
+    FE -->|HTTP REST| BE
+    BE --> DB
+    FE <--> LS[(localStorage)]
     </div>
   </div>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Estructura de directorios</h3>
     <div class="mermaid">
 graph LR
-    ROOT["📁 kreative Vit/"]
-    ROOT --> API["📁 api/"]
-    ROOT --> SRC["📁 src/"]
-    ROOT --> PUBLIC["📁 public/insignias/"]
-    ROOT --> DOC["📁 doc/"]
-
-    API --> CFG2["config.php"]
-    API --> FL2["fetchLogs.php"]
-    API --> SL2["saveLog.php"]
-    API --> SA2["send_alert.php"]
-    API --> ST2["stats.php"]
-
-    SRC --> CTX2["context/ThemeContext"]
-    SRC --> LAY["layout/DashboardLayout"]
-    SRC --> PGS["pages/ (9 páginas)"]
-    SRC --> CMP["components/ (3)"]
-    SRC --> UTL["utils/badgeHelper"]
+    R["kreative Vit/"] --> API["api/"]
+    R --> SRC["src/"]
+    R --> PUB["public/insignias/"]
+    R --> DOC["doc/"]
+    API --> c1["config.php"]
+    API --> c2["fetchLogs.php"]
+    API --> c3["saveLog.php"]
+    API --> c4["send_alert.php"]
+    API --> c5["stats.php"]
+    SRC --> s1["context/"]
+    SRC --> s2["layout/"]
+    SRC --> s3["pages/"]
+    SRC --> s4["components/"]
+    SRC --> s5["utils/"]
     </div>
   </div>
 </div>
@@ -167,10 +121,9 @@ graph LR
 <!-- FLUJO -->
 <div id="flujo" class="section">
   <h2>🔄 <span>Flujo de Datos</span></h2>
-  <p class="subtitle">Cómo viajan los datos desde que el usuario guarda una bitácora hasta que aparece una insignia.</p>
-
-  <div class="diagram-card">
-    <h3>Guardar bitácora — Flujo completo</h3>
+  <p class="subtitle">Desde que el usuario guarda una bitácora hasta que aparece una insignia.</p>
+  <div class="card">
+    <h3>Guardar bitácora</h3>
     <div class="mermaid">
 sequenceDiagram
     actor U as Usuario
@@ -179,27 +132,22 @@ sequenceDiagram
     participant SL as saveLog.php
     participant SA as send_alert.php
     participant DB as MySQL
-    participant EMAIL as Email Admin
-
-    U->>B: Completa formulario y guarda
-    B->>LS: Guarda bitácora (offline-first)
-    B->>SL: POST /api/saveLog.php
+    participant EM as Email Admin
+    U->>B: Completa y guarda formulario
+    B->>LS: Guarda bitácora offline
+    B->>SL: POST saveLog.php
     SL->>DB: INSERT INTO bitacoras
     DB-->>SL: OK
-    SL-->>B: {"success": true}
-
-    alt mood=frustrado/cansado ó ayuda=true
-        B->>SA: POST /api/send_alert.php
-        SA->>EMAIL: PHPMailer → Admin
-        EMAIL-->>SA: Enviado
-        SA-->>B: {"success": true}
+    SL-->>B: success true
+    alt mood critico o ayuda solicitada
+        B->>SA: POST send_alert.php
+        SA->>EM: PHPMailer envía email
+        EM-->>SA: Enviado
     end
-
-    B->>B: Actualiza UI + dispara cálculo de insignias
+    B->>B: Calcula insignias nuevas
     </div>
   </div>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Sincronización al entrar al dashboard</h3>
     <div class="mermaid">
 sequenceDiagram
@@ -208,19 +156,17 @@ sequenceDiagram
     participant LS as localStorage
     participant FL as fetchLogs.php
     participant DB as MySQL
-
     U->>DL: Navega al Dashboard
     DL->>LS: Lee practicante_token
-    alt No hay token
+    alt Sin token
         DL->>U: Redirige a /login
     else Token válido
-        DL->>FL: GET /api/fetchLogs.php
-        FL->>DB: SELECT bitacoras + fellows + badges
+        DL->>FL: GET fetchLogs.php
+        FL->>DB: SELECT bitacoras fellows badges
         DB-->>FL: Datos
-        FL-->>DL: JSON con bitacoras + fellows
-        DL->>LS: Actualiza practicantes_bitacoras + practicantes_fellows
-        DL->>DL: dispatchEvent('storage') → re-render components
-        DL->>DL: calculateUserBadges() → CelebrationOverlay si hay nuevas
+        FL-->>DL: JSON con datos
+        DL->>LS: Actualiza cache local
+        DL->>DL: calculateUserBadges
     end
     </div>
   </div>
@@ -229,46 +175,40 @@ sequenceDiagram
 <!-- AUTH -->
 <div id="auth" class="section">
   <h2>🔐 <span>Autenticación</span></h2>
-  <p class="subtitle">Flujo de login delegado al sistema externo alphadocere_auth_system.</p>
-
-  <div class="diagram-card">
+  <p class="subtitle">Login delegado al sistema externo alphadocere_auth_system.</p>
+  <div class="card">
     <h3>Flujo de Login</h3>
     <div class="mermaid">
 sequenceDiagram
     actor U as Usuario
     participant L as Login.jsx
-    participant AUTH as alphadocere_auth_system
+    participant AU as auth_system
     participant LS as localStorage
-    participant DL as Dashboard
-
-    U->>L: Ingresa email + contraseña
-    L->>AUTH: POST /auth/login
+    participant D as Dashboard
+    U->>L: email + contraseña
+    L->>AU: POST /auth/login
     alt Credenciales inválidas
-        AUTH-->>L: {"success": false}
+        AU-->>L: success false
         L->>U: Muestra error
     else Credenciales válidas
-        AUTH-->>L: JWT token + nombre + email + is_admin
-        L->>LS: practicante_token = JWT
-        L->>LS: practicante_user = nombre
-        L->>LS: practicante_email = email
-        L->>LS: practicante_is_admin = true/false
-        L->>DL: navigate('/dashboard') o navigate('/dashboard/admin')
+        AU-->>L: JWT + nombre + email + is_admin
+        L->>LS: Guarda token y datos
+        L->>D: navigate al dashboard
     end
     </div>
   </div>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Guard de ruta protegida</h3>
     <div class="mermaid">
 flowchart TD
-    A([Usuario navega a /dashboard]) --> B{Existe token en localStorage?}
-    B -- No --> C[navigate a /login]
-    B -- Si --> D{Existe practicante_generation?}
-    D -- No --> E[Muestra modal de bienvenida]
-    E --> F[Usuario elige generacion y frase]
-    F --> G[Guarda en localStorage y fellows]
-    D -- Si --> H[Renderiza Dashboard normal]
-    G --> H
+    A(["Navega a /dashboard"]) --> B{"Token en localStorage?"}
+    B -- No --> C["Redirige a /login"]
+    B -- Si --> D{"Generation guardada?"}
+    D -- No --> E["Modal de bienvenida"]
+    E --> F["Selecciona generacion y frase"]
+    F --> G["Guarda en localStorage"]
+    G --> H["Dashboard renderizado"]
+    D -- Si --> H
     </div>
   </div>
 </div>
@@ -277,8 +217,7 @@ flowchart TD
 <div id="bd" class="section">
   <h2>🗄️ <span>Base de Datos</span></h2>
   <p class="subtitle">Esquema ER de la base de datos alphadocere_Vit.</p>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Diagrama Entidad-Relación</h3>
     <div class="mermaid">
 erDiagram
@@ -294,7 +233,6 @@ erDiagram
         varchar email
         int generacion_id FK
         tinyint activo
-        datetime created_at
     }
     BITACORAS {
         int id PK
@@ -303,124 +241,102 @@ erDiagram
         text hecho_hoy
         varchar estado_animo
         int palabras_count
-        datetime timestamp
     }
-    INSIGNIAS_DESBLOQUEADAS {
+    INSIGNIAS {
         int id PK
         int usuario_id FK
         int insignia_id
-        datetime desbloqueada_at
     }
-    GENERACIONES ||--o{ USUARIOS : pertenece
+    GENERACIONES ||--o{ USUARIOS : tiene
     USUARIOS ||--o{ BITACORAS : escribe
-    USUARIOS ||--o{ INSIGNIAS_DESBLOQUEADAS : desbloquea
+    USUARIOS ||--o{ INSIGNIAS : desbloquea
     </div>
   </div>
 </div>
 
 <!-- INSIGNIAS -->
-<div id="insignias" class="section">
+<div id="ins" class="section">
   <h2>🏅 <span>Sistema de Insignias</span></h2>
-  <p class="subtitle">Lógica de cálculo y categorías de insignias de Kreative Vit.</p>
-
-  <div class="diagram-card">
+  <p class="subtitle">Lógica de cálculo y categorías de insignias.</p>
+  <div class="card">
     <h3>Flujo de cálculo y celebración</h3>
     <div class="mermaid">
 flowchart TD
-    A([DashboardLayout mount o nueva bitacora]) --> B[calculateUserBadges]
-    B --> C1[Hitos de cantidad]
-    B --> C2[Rachas consecutivas]
-    B --> C3[Volumen de palabras]
-    B --> C4[Horario de escritura]
-    B --> C5[Resiliencia]
-    B --> C6[Analisis de texto]
-    B --> C7[Especiales]
-    C1 --> D[Array de IDs ganados]
+    A(["Mount DashboardLayout"]) --> B["calculateUserBadges"]
+    B --> C1["Hitos de bitacoras"]
+    B --> C2["Rachas consecutivas"]
+    B --> C3["Volumen de palabras"]
+    B --> C4["Horario de escritura"]
+    B --> C5["Resiliencia"]
+    B --> C6["Analisis de texto"]
+    B --> C7["Especiales"]
+    C1 --> D["IDs ganados"]
     C2 --> D
     C3 --> D
     C4 --> D
     C5 --> D
     C6 --> D
     C7 --> D
-    D --> E{IDs no reconocidos aun}
-    E -- No --> F([Nada que celebrar])
-    E -- Si --> G[CelebrationOverlay con confetti]
-    G --> H[Usuario presiona Excelente]
-    H --> I[Badge agregado a acknowledged]
+    D --> E{"Nuevas sin celebrar?"}
+    E -- No --> F(["Fin"])
+    E -- Si --> G["CelebrationOverlay"]
+    G --> H["Usuario confirma"]
+    H --> I["Badge acknowledged"]
     I --> E
     </div>
   </div>
-
-  <h3 style="margin:24px 0 16px; color: var(--accent);">Catálogo de insignias por categoría</h3>
+  <h3 style="margin:24px 0 16px;color:var(--accent)">Catálogo por categoría</h3>
   <div class="badge-grid">
-    <div class="badge-cat">
-      <h4>📊 Hitos de Cantidad</h4>
-      <ul>
-        <li><strong>ID 1</strong> — Mente Abierta (1 bitácora)</li>
-        <li><strong>ID 3</strong> — Mente Ligera (7)</li>
-        <li><strong>ID 5</strong> — Cable a Tierra (15)</li>
-        <li><strong>ID 7</strong> — Zis-Zas Mental (21)</li>
-        <li><strong>ID 8</strong> — Hábitat de Calma (30)</li>
-        <li><strong>ID 10</strong> — Paso a Paso (45)</li>
-        <li><strong>ID 12</strong> — Escudo de Papel (60)</li>
-        <li><strong>ID 14</strong> — Foco Claro (75)</li>
-        <li><strong>ID 16</strong> — Maestría Interior (90)</li>
-      </ul>
-    </div>
-    <div class="badge-cat">
-      <h4>🔥 Rachas Consecutivas</h4>
-      <ul>
-        <li><strong>ID 2</strong> — Primer Impulso (3 días)</li>
-        <li><strong>ID 4</strong> — Semana Imparable (7)</li>
-        <li><strong>ID 6</strong> — Ritmo Constante (14)</li>
-        <li><strong>ID 9</strong> — Mes Inquebrantable (30)</li>
-        <li><strong>ID 11</strong> — Flujo de Paz (45)</li>
-        <li><strong>ID 13</strong> — Mente de Acero (60)</li>
-        <li><strong>ID 15</strong> — Faro en la Tormenta (75)</li>
-        <li><strong>ID 17</strong> — Zen Absoluto (90)</li>
-      </ul>
-    </div>
-    <div class="badge-cat">
-      <h4>✍️ Escritura + 🕐 Rituales</h4>
-      <ul>
-        <li><strong>ID 19</strong> — Bitácora Viva (5k palabras)</li>
-        <li><strong>ID 20</strong> — Mente en Movimiento (10k)</li>
-        <li><strong>ID 21</strong> — Archivo Interior (25k)</li>
-        <li><strong>ID 22</strong> — Noctámbulo Sereno (22-24h)</li>
-        <li><strong>ID 23</strong> — Último Esfuerzo (0-4h)</li>
-        <li><strong>ID 24</strong> — Inicio Ligero (6-9h)</li>
-      </ul>
-    </div>
-    <div class="badge-cat">
-      <h4>🛠️ Habilidades Técnicas</h4>
-      <ul>
-        <li><strong>ID 41</strong> — Git Master</li>
-        <li><strong>ID 42</strong> — cPanel Explorer</li>
-        <li><strong>ID 43</strong> — Wiki Contribuidor</li>
-        <li><strong>ID 44</strong> — Voz Activa (Podcast)</li>
-        <li><strong>ID 45</strong> — Matriz de Eisenhower</li>
-        <li><strong>ID 46</strong> — Bug Hunter</li>
-      </ul>
-    </div>
-    <div class="badge-cat">
-      <h4>⭐ Especiales</h4>
-      <ul>
-        <li><strong>ID 18</strong> — El Creador</li>
-        <li><strong>ID 47</strong> — Líder Alpha Docere</li>
-        <li><strong>ID 48</strong> — Miembro Comunidad</li>
-        <li><strong>ID 28-40</strong> — Generaciones 17-29</li>
-        <li><strong>ID 130+</strong> — Generaciones 30-58</li>
-        <li><strong>ID 200</strong> — Gen Forever</li>
-      </ul>
-    </div>
-    <div class="badge-cat">
-      <h4>💪 Resiliencia</h4>
-      <ul>
-        <li><strong>ID 25</strong> — Volver a Empezar</li>
-        <li><strong>ID 26</strong> — Sigue Adelante</li>
-        <li><strong>ID 27</strong> — Constancia Real</li>
-      </ul>
-    </div>
+    <div class="badge-cat"><h4>📊 Hitos de Cantidad</h4><ul>
+      <li><strong>ID 1</strong> — Mente Abierta (1 bitácora)</li>
+      <li><strong>ID 3</strong> — Mente Ligera (7)</li>
+      <li><strong>ID 5</strong> — Cable a Tierra (15)</li>
+      <li><strong>ID 7</strong> — Zis-Zas Mental (21)</li>
+      <li><strong>ID 8</strong> — Hábitat de Calma (30)</li>
+      <li><strong>ID 10</strong> — Paso a Paso (45)</li>
+      <li><strong>ID 12</strong> — Escudo de Papel (60)</li>
+      <li><strong>ID 14</strong> — Foco Claro (75)</li>
+      <li><strong>ID 16</strong> — Maestría Interior (90)</li>
+    </ul></div>
+    <div class="badge-cat"><h4>🔥 Rachas Consecutivas</h4><ul>
+      <li><strong>ID 2</strong> — Primer Impulso (3 días)</li>
+      <li><strong>ID 4</strong> — Semana Imparable (7)</li>
+      <li><strong>ID 6</strong> — Ritmo Constante (14)</li>
+      <li><strong>ID 9</strong> — Mes Inquebrantable (30)</li>
+      <li><strong>ID 11</strong> — Flujo de Paz (45)</li>
+      <li><strong>ID 13</strong> — Mente de Acero (60)</li>
+      <li><strong>ID 15</strong> — Faro en la Tormenta (75)</li>
+      <li><strong>ID 17</strong> — Zen Absoluto (90)</li>
+    </ul></div>
+    <div class="badge-cat"><h4>✍️ Escritura + 🕐 Rituales</h4><ul>
+      <li><strong>ID 19</strong> — Bitácora Viva (5k palabras)</li>
+      <li><strong>ID 20</strong> — Mente en Movimiento (10k)</li>
+      <li><strong>ID 21</strong> — Archivo Interior (25k)</li>
+      <li><strong>ID 22</strong> — Noctámbulo Sereno (22-24h)</li>
+      <li><strong>ID 23</strong> — Último Esfuerzo (0-4h)</li>
+      <li><strong>ID 24</strong> — Inicio Ligero (6-9h)</li>
+    </ul></div>
+    <div class="badge-cat"><h4>🛠️ Habilidades Técnicas</h4><ul>
+      <li><strong>ID 41</strong> — Git Master</li>
+      <li><strong>ID 42</strong> — cPanel Explorer</li>
+      <li><strong>ID 43</strong> — Wiki Contribuidor</li>
+      <li><strong>ID 44</strong> — Voz Activa (Podcast)</li>
+      <li><strong>ID 45</strong> — Matriz de Eisenhower</li>
+      <li><strong>ID 46</strong> — Bug Hunter</li>
+    </ul></div>
+    <div class="badge-cat"><h4>⭐ Especiales</h4><ul>
+      <li><strong>ID 18</strong> — El Creador</li>
+      <li><strong>ID 47</strong> — Líder Alpha Docere</li>
+      <li><strong>ID 48</strong> — Miembro Comunidad</li>
+      <li><strong>ID 28-40</strong> — Generaciones 17-29</li>
+      <li><strong>ID 130+</strong> — Generaciones 30-58</li>
+      <li><strong>ID 200</strong> — Gen Forever</li>
+    </ul></div>
+    <div class="badge-cat"><h4>💪 Resiliencia</h4><ul>
+      <li><strong>ID 25</strong> — Volver a Empezar</li>
+      <li><strong>ID 26</strong> — Sigue Adelante</li>
+      <li><strong>ID 27</strong> — Constancia Real</li>
+    </ul></div>
   </div>
 </div>
 
@@ -428,64 +344,30 @@ flowchart TD
 <div id="api" class="section">
   <h2>📡 <span>API</span> Endpoints</h2>
   <p class="subtitle">Referencia rápida de todos los endpoints del backend PHP.</p>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Mapa de endpoints</h3>
     <div class="mermaid">
 flowchart LR
-    CLIENT[React Frontend]
-    CLIENT -->|GET| FL3[fetchLogs]
-    CLIENT -->|POST| SL3[saveLog]
-    CLIENT -->|POST| SA3[send alert]
-    CLIENT -->|GET| ST3[stats]
-    FL3 --> DB3[(MySQL)]
-    SL3 --> DB3
-    SA3 --> DB3
-    ST3 --> DB3
-    SA3 -->|PHPMailer| EMAIL3[Admin Email]
+    C["React Frontend"]
+    C -->|GET| A["fetchLogs.php"]
+    C -->|POST| B["saveLog.php"]
+    C -->|POST| D["send_alert.php"]
+    C -->|GET| E["stats.php"]
+    A --> DB[("MySQL")]
+    B --> DB
+    D --> DB
+    E --> DB
+    D -->|PHPMailer| EM["Admin Email"]
     </div>
   </div>
-
-  <div class="diagram-card" style="padding: 0; overflow: hidden;">
-    <table class="api-table">
-      <thead>
-        <tr>
-          <th>Endpoint</th>
-          <th>Método</th>
-          <th>Auth</th>
-          <th>Descripción</th>
-          <th>Retorna</th>
-        </tr>
-      </thead>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>Endpoint</th><th>Método</th><th>Auth</th><th>Descripción</th><th>Retorna</th></tr></thead>
       <tbody>
-        <tr>
-          <td>/api/fetchLogs.php</td>
-          <td><span class="method get">GET</span></td>
-          <td>No</td>
-          <td>Obtiene bitácoras, fellows e insignias</td>
-          <td>bitacoras[], fellows[]</td>
-        </tr>
-        <tr>
-          <td>/api/saveLog.php</td>
-          <td><span class="method post">POST</span></td>
-          <td>No*</td>
-          <td>Persiste una bitácora en MySQL</td>
-          <td>success: true/false</td>
-        </tr>
-        <tr>
-          <td>/api/send_alert.php</td>
-          <td><span class="method post">POST</span></td>
-          <td>No*</td>
-          <td>Envía email de alerta emocional</td>
-          <td>admins_notified: N</td>
-        </tr>
-        <tr>
-          <td>/api/stats.php</td>
-          <td><span class="method get">GET</span></td>
-          <td>No</td>
-          <td>Estadísticas públicas (landing)</td>
-          <td>generation, active_users</td>
-        </tr>
+        <tr><td>/api/fetchLogs.php</td><td><span class="m get">GET</span></td><td>No</td><td>Bitácoras, fellows e insignias</td><td>bitacoras[], fellows[]</td></tr>
+        <tr><td>/api/saveLog.php</td><td><span class="m post">POST</span></td><td>No*</td><td>Persiste bitácora en MySQL</td><td>success: true/false</td></tr>
+        <tr><td>/api/send_alert.php</td><td><span class="m post">POST</span></td><td>No*</td><td>Envía alerta emocional por email</td><td>admins_notified: N</td></tr>
+        <tr><td>/api/stats.php</td><td><span class="m get">GET</span></td><td>No</td><td>Estadísticas públicas</td><td>generation, active_users</td></tr>
       </tbody>
     </table>
   </div>
@@ -494,77 +376,92 @@ flowchart LR
 <!-- RUTAS -->
 <div id="rutas" class="section">
   <h2>🗺️ <span>Rutas</span> de la Aplicación</h2>
-  <p class="subtitle">Mapa de rutas del router React y sus componentes.</p>
-
-  <div class="diagram-card">
+  <p class="subtitle">Mapa de rutas del router React y árbol de componentes.</p>
+  <div class="card">
     <h3>Árbol de rutas (React Router DOM v7)</h3>
     <div class="mermaid">
 flowchart TD
-    ROOT[BrowserRouter]
-    ROOT --> HOME2[slash Home publica]
-    ROOT --> LOGIN2[slash login publica]
-    ROOT --> DASH[slash dashboard protegida]
-    DASH --> D_HOME[index DashboardHome]
-    DASH --> D_BIT[bitacora Bitacora]
-    DASH --> D_HIST[historial Historial]
-    DASH --> D_INS[insignias Insignias]
-    DASH --> D_COMP[companeros Companeros]
-    DASH --> D_PROF[perfil Profile]
-    DASH --> D_ADM[admin AdminPanel]
-    ROOT --> WILD[Wildcard a raiz]
+    ROOT["BrowserRouter"]
+    ROOT --> R1["/ Home publica"]
+    ROOT --> R2["/login Login publica"]
+    ROOT --> R3["/dashboard DashboardLayout protegida"]
+    R3 --> R4["index DashboardHome"]
+    R3 --> R5["bitacora Bitacora"]
+    R3 --> R6["historial Historial"]
+    R3 --> R7["insignias Insignias"]
+    R3 --> R8["companeros Companeros"]
+    R3 --> R9["perfil Profile"]
+    R3 --> R10["admin AdminPanel"]
+    ROOT --> R11["wildcard redirige a raiz"]
     </div>
   </div>
-
-  <div class="diagram-card">
+  <div class="card">
     <h3>Árbol de componentes</h3>
     <div class="mermaid">
 flowchart TD
-    APP[App] --> TP[ThemeProvider]
-    TP --> BR[BrowserRouter]
-    BR --> HOME3[Home]
-    BR --> LOG[Login]
-    BR --> DLA[DashboardLayout]
-    HOME3 --> NAV[Navbar]
-    DLA --> OUT[Outlet]
-    DLA --> OTD[OnThisDay]
-    DLA --> GEN[GenSetupModal]
-    DLA --> CEL[CelebrationOverlay]
-    OUT --> PG1[DashboardHome]
-    OUT --> PG2[Bitacora]
-    OUT --> PG3[Historial]
-    OUT --> PG4[Insignias]
-    OUT --> PG5[Companeros]
-    OUT --> PG6[Profile]
-    OUT --> PG7[AdminPanel]
-    PG4 --> BV1[BadgeViewer]
-    PG5 --> BV2[BadgeViewer]
-    PG6 --> BV3[BadgeViewer]
+    APP["App.jsx"] --> TP["ThemeProvider"]
+    TP --> BR["BrowserRouter"]
+    BR --> P1["Home"]
+    BR --> P2["Login"]
+    BR --> DL["DashboardLayout"]
+    P1 --> N["Navbar"]
+    DL --> OUT["Outlet"]
+    DL --> OTD["OnThisDay"]
+    DL --> GM["GenSetupModal"]
+    DL --> CO["CelebrationOverlay"]
+    OUT --> G1["DashboardHome"]
+    OUT --> G2["Bitacora"]
+    OUT --> G3["Historial"]
+    OUT --> G4["Insignias"]
+    OUT --> G5["Companeros"]
+    OUT --> G6["Profile"]
+    OUT --> G7["AdminPanel"]
+    G4 --> BV["BadgeViewer"]
+    G5 --> BV
+    G6 --> BV
     </div>
   </div>
 </div>
 
 </main>
-
 <script>
-  mermaid.initialize({ 
-    startOnLoad: true, 
+  mermaid.initialize({
+    startOnLoad: false,
     theme: 'dark',
     themeVariables: {
-      primaryColor: '#39ff14',
+      primaryColor: '#1f6feb',
       primaryTextColor: '#e6edf3',
       primaryBorderColor: '#30363d',
       lineColor: '#8b949e',
       secondaryColor: '#161b22',
-      tertiaryColor: '#0d1117'
+      tertiaryColor: '#0d1117',
+      background: '#0d1117',
+      mainBkg: '#161b22',
+      nodeBorder: '#30363d',
+      clusterBkg: '#1c2128',
+      titleColor: '#e6edf3',
+      edgeLabelBackground: '#161b22'
     }
   });
 
   function show(id, btn) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('visible');
+    const section = document.getElementById(id);
+    section.classList.add('visible');
     btn.classList.add('active');
+    // Re-run mermaid for newly visible diagrams
+    const nodes = section.querySelectorAll('.mermaid:not([data-processed])');
+    if (nodes.length > 0) {
+      mermaid.run({ nodes: Array.from(nodes) });
+    }
   }
+
+  // Initial render only for the visible section
+  document.addEventListener('DOMContentLoaded', function() {
+    const nodes = document.querySelector('#arq').querySelectorAll('.mermaid');
+    mermaid.run({ nodes: Array.from(nodes) });
+  });
 </script>
 </body>
 </html>
