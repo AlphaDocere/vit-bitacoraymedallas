@@ -51,7 +51,7 @@ const Login = () => {
   }, [lockoutUntil]);
 
   React.useEffect(() => {
-    fetch('https://test-systemauth.alphadocere.cl/api/stats.php')
+    fetch('https://kreative-vit.alphadocere.cl/api/stats.php')
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -86,9 +86,56 @@ const Login = () => {
         localStorage.setItem('practicante_user', data.user.nombre);
         localStorage.setItem('practicante_email', data.user.email);
 
+        let localRole = data.user.rol || 'usuario';
+
+        // EXTRAER ROL ESPECÍFICO PARA KREATIVE VIT
+        let roleParaVit = null;
+
+        // Regla absoluta para los superadministradores (Ignora system_auth)
+        if (data.user.email === 'rjoseeliecer@gmail.com' || data.user.email === 'mauro.rojas@alphadocere.cl') {
+          roleParaVit = data.user.email === 'mauro.rojas@alphadocere.cl' ? 'lider' : 'admin';
+        } else if (data.roles && Array.isArray(data.roles)) {
+          const vitRole = data.roles.find(r => 
+             (r.nombre_proyecto && r.nombre_proyecto.toLowerCase().includes('vit')) || 
+             r.proyecto_id === 4
+          );
+          
+          if (vitRole) {
+              const rName = (vitRole.nombre_rol || '').toLowerCase();
+              if (rName.includes('admin') || vitRole.rol_id === 12) roleParaVit = 'admin';
+              else if (rName.includes('lider')) roleParaVit = 'lider';
+              else roleParaVit = 'usuario';
+          }
+        }
+        
+        const rolAEnviar = roleParaVit || data.user.rol || (data.user.es_admin == true || data.user.es_admin === "1" || data.user.es_admin === "true" ? 'admin' : 'usuario');
+
+        // Sincronizar usuario con la BD local de Kreative Vit y registrar sesión
+        try {
+          const syncRes = await fetch('https://kreative-vit.alphadocere.cl/api/syncUser.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              client_id: data.user.id || data.user.client_id || 0,
+              nombre: data.user.nombre,
+              email: data.user.email,
+              rol: rolAEnviar
+            })
+          });
+          const syncData = await syncRes.json();
+          if (syncData.success && syncData.rol) {
+            localRole = syncData.rol;
+          } else {
+            localRole = rolAEnviar; // Fallback si falla la sincronización pero devolvió 200
+          }
+        } catch (syncErr) {
+          console.error("Error al sincronizar usuario en BD local:", syncErr);
+          localRole = rolAEnviar; // Fallback en caso de error de red
+        }
+
         // Fetch data from MySQL Backend to sync with LocalStorage
         try {
-          const logsResponse = await fetch('https://test-systemauth.alphadocere.cl/api/fetchLogs.php');
+          const logsResponse = await fetch('https://kreative-vit.alphadocere.cl/api/fetchLogs.php');
           const logsData = await logsResponse.json();
           if (logsData.success) {
             localStorage.setItem('practicantes_bitacoras', JSON.stringify(logsData.bitacoras));
@@ -98,8 +145,8 @@ const Login = () => {
           console.error("Error syncing MySQL data:", fetchErr);
         }
 
-        // Define if user is admin
-        const isAdmin = data.user.es_admin ? 'true' : 'false';
+        // Define if user is admin based on local database role
+        const isAdmin = (localRole === 'admin' || localRole === 'lider' || localRole === 'administrador') ? 'true' : 'false';
         localStorage.setItem('practicante_is_admin', isAdmin);
 
         if (isAdmin === 'true') {

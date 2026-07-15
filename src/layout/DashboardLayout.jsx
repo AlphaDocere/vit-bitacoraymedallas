@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { PenSquare, BookOpen, User, Moon, Sun, Menu, X, Crown, Award, Users, Home as HomeIcon } from 'lucide-react';
+import { PenSquare, BookOpen, User, Moon, Sun, Menu, X, Crown, Award, Users, Home as HomeIcon, ShieldAlert } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import LogoLight from '../assets/Kreative vit sin fondo letra negra.png';
 import LogoDark from '../assets/Kreative vit sin fondo letra blanca.png';
@@ -180,10 +180,15 @@ const DashboardLayout = () => {
         // Clean existing fake data if present
         const fakeUsers = ['María Alejandra', 'Nicolas González', 'Camila Soto', 'Sebastian Reyes'];
         let filtered = parsed.filter(f => !fakeUsers.includes(f.username));
-        // Strip normal badges from Mauro if he had them
+        // Setup special handling for Mauro Rojas
         filtered = filtered.map(f => {
           if (f.username === 'Mauro Rojas') {
-            f.badges = f.badges.filter(b => b === 47 || b === 48);
+            f.generation = 'Jefe';
+            if (f.status !== '¡Practicando en Kreative Vit!') {
+              f.badges = [47, 48];
+            } else {
+              f.badges = [];
+            }
           }
           return f;
         });
@@ -194,12 +199,23 @@ const DashboardLayout = () => {
     // ── ALWAYS sync from real MySQL backend on every mount ──
     const token = localStorage.getItem('practicante_token');
     if (token) {
-      fetch('https://test-systemauth.alphadocere.cl/api/fetchLogs.php')
+      fetch('https://kreative-vit.alphadocere.cl/api/fetchLogs.php')
         .then(res => res.json())
         .then(logsData => {
           if (logsData.success && logsData.bitacoras && logsData.fellows) {
+            const processedFellows = logsData.fellows.map(f => {
+              if (f.username === 'Mauro Rojas') {
+                f.generation = 'Jefe';
+                if (f.status !== '¡Practicando en Kreative Vit!') {
+                  f.badges = [47, 48];
+                } else {
+                  f.badges = [];
+                }
+              }
+              return f;
+            });
             localStorage.setItem('practicantes_bitacoras', JSON.stringify(logsData.bitacoras));
-            localStorage.setItem('practicantes_fellows', JSON.stringify(logsData.fellows));
+            localStorage.setItem('practicantes_fellows', JSON.stringify(processedFellows));
             // Force all open components to re-read localStorage
             window.dispatchEvent(new Event('storage'));
           }
@@ -366,6 +382,19 @@ const DashboardLayout = () => {
                 <div className="nav-user-dropdown" style={{ display: 'flex' }}>
                   <span className="nav-user-name">{mappedDisplayName}</span>
                   <div className="nav-drop-divider"></div>
+                  
+                  <button className="nav-drop-btn" onClick={() => { navigate('/dashboard/perfil'); setUserMenuOpen(false); }}>
+                    <User size={14} style={{marginRight: '6px'}}/> Mi Perfil
+                  </button>
+                  
+                  {isAdmin && (
+                    <button className="nav-drop-btn" onClick={() => { navigate('/dashboard/admin'); setUserMenuOpen(false); }}>
+                      <ShieldAlert size={14} style={{marginRight: '6px'}}/> Panel de Admin
+                    </button>
+                  )}
+                  
+                  <div className="nav-drop-divider"></div>
+                  
                   <button className="nav-drop-btn logout" onClick={handleLogout}>
                     Cerrar Sesión
                   </button>

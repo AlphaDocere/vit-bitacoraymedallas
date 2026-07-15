@@ -129,7 +129,13 @@ const DashboardHome = () => {
       // Check if user submitted a log today
       const bitacorasStored = localStorage.getItem('practicantes_bitacoras');
       const bitacoras = bitacorasStored ? JSON.parse(bitacorasStored) : [];
-      const todayStr = new Date().toISOString().split('T')[0];
+      
+      const dateObj = new Date();
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const todayStr = `${y}-${m}-${d}`;
+      
       const submitted = bitacoras.some(b => (b.practicante === user || b.user === user) && b.fecha === todayStr);
       setUserSubmittedToday(submitted);
 

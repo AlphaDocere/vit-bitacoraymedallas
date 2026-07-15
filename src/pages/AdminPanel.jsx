@@ -1,54 +1,133 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Activity, AlertTriangle, ShieldAlert, HeartPulse } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Users, Activity, AlertTriangle, ShieldAlert, HeartPulse, Search, Calendar, ChevronRight, FileText } from 'lucide-react';
 
 const AdminPanel = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalBitacoras: 0,
-    moodScore: 0, // % of positive moods
+    moodScore: 0,
   });
   const [alerts, setAlerts] = useState([]);
+  
+  // New States for User Management
+  const [usersData, setUsersData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('all'); // 'all', 'active', 'inactive', 'alerts'
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    const rawData = localStorage.getItem('practicantes_bitacoras');
-    if (!rawData) return;
+    const rawBitacoras = localStorage.getItem('practicantes_bitacoras');
+    const rawFellows = localStorage.getItem('practicantes_fellows');
+    
+    if (!rawBitacoras || !rawFellows) return;
     
     try {
-      const bitacoras = JSON.parse(rawData);
+      const bitacoras = JSON.parse(rawBitacoras);
+      let fellows = JSON.parse(rawFellows);
       
-      // Map names to unify active user calculations
-      const mappedUsernames = bitacoras.map(b => b.user === 'Jose Eliecer Rivera Perez' ? 'Joseph Joestar' : b.user);
-      
-      // Calculate Stats
-      const uniqueUsers = new Set(mappedUsernames).size;
+      // Cleanup map for Joseph
+      const mapName = (name) => name === 'Jose Eliecer Rivera Perez' ? 'Joseph Joestar' : name;
+
+      // Group bitacoras by user
+      const bitacorasByUser = {};
+      bitacoras.forEach(b => {
+        const uName = mapName(b.user);
+        if (!bitacorasByUser[uName]) bitacorasByUser[uName] = [];
+        bitacorasByUser[uName].push(b);
+      });
+
+      // Filter fake users if any missed
+      const fakeUsers = ['María Alejandra', 'Nicolas González', 'Camila Soto', 'Sebastian Reyes'];
+      fellows = fellows.filter(f => !fakeUsers.includes(f.username));
+
+      // Build User Data Array
+      const processedUsers = fellows.map(f => {
+        const mappedName = mapName(f.username);
+        const userBits = bitacorasByUser[mappedName] || [];
+        userBits.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Descending
+
+        const hasAlerts = userBits.some(b => b.ayuda || ['frustrado', 'cansado'].includes(b.mood));
+        
+        let gen = f.generation;
+        if (f.username === 'Javier Murillo') gen = 18;
+        
+        return {
+          ...f,
+          generation: gen,
+          mappedName,
+          bitacoras: userBits,
+          bitacorasCount: userBits.length,
+          lastBitacora: userBits.length > 0 ? userBits[0].fecha : null,
+          hasAlerts,
+          isActive: userBits.length > 0
+        };
+      });
+
+      // Sort by active, then alerts, then name
+      processedUsers.sort((a, b) => {
+        if (a.hasAlerts !== b.hasAlerts) return b.hasAlerts ? 1 : -1;
+        if (a.bitacorasCount !== b.bitacorasCount) return b.bitacorasCount - a.bitacorasCount;
+        return a.mappedName.localeCompare(b.mappedName);
+      });
+
+      setUsersData(processedUsers);
+
+      // Global Stats
+      const activeUsers = processedUsers.filter(u => u.isActive).length;
       const totalBitacoras = bitacoras.length;
-      
       const positiveMoods = bitacoras.filter(b => ['excelente', 'bien'].includes(b.mood)).length;
       const moodScore = totalBitacoras > 0 ? Math.round((positiveMoods / totalBitacoras) * 100) : 0;
       
-      setStats({ totalUsers: uniqueUsers, totalBitacoras, moodScore });
+      setStats({ totalUsers: activeUsers, totalBitacoras, moodScore });
 
-      // Generate Alerts (Radar de Bloqueos)
-      // We look for any bitacora where ayuda == true OR mood is bad
+      // Generate Critical Alerts for quick access
       const generatedAlerts = bitacoras.filter(b => b.ayuda || ['frustrado', 'cansado'].includes(b.mood)).map(b => {
-        const mappedName = b.user === 'Jose Eliecer Rivera Perez' ? 'Joseph Joestar' : b.user;
         return {
           id: b.id,
-          user: mappedName,
+          user: mapName(b.user),
           date: b.fecha,
           needsHelp: b.ayuda,
           helpDesc: b.ayudaDesc,
           mood: b.mood,
-          reason: b.ayuda ? 'Solicitó ayuda prioritaria' : `Estado de ánimo crítico: ${b.mood}`
+          reason: b.ayuda ? 'Solicitó ayuda prioritaria' : `Estado de ánimo crítico: ${b.mood}`,
+          original: b
         };
       });
-      
       setAlerts(generatedAlerts);
 
     } catch (err) {
-      console.error('Error parsing bitacoras for admin', err);
+      console.error('Error parsing data for admin', err);
     }
   }, []);
+
+  const filteredUsers = useMemo(() => {
+    return usersData.filter(u => {
+      const matchesSearch = u.mappedName.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+      
+      if (filterType === 'active') return u.isActive;
+      if (filterType === 'inactive') return !u.isActive;
+      if (filterType === 'alerts') return u.hasAlerts;
+      return true;
+    });
+  }, [usersData, searchQuery, filterType]);
+
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+    // Scroll mobile to details if needed
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getMoodEmoji = (mood) => {
+    switch (mood) {
+      case 'excelente': return '🤩';
+      case 'bien': return '😊';
+      case 'regular': return '😐';
+      case 'cansado': return '😫';
+      case 'frustrado': return '😤';
+      default: return '🙂';
+    }
+  };
 
   return (
     <div className="admin-wrapper animate-fade-up">
@@ -84,60 +163,135 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      {/* ── RADAR DE BLOQUEOS ── */}
-      <div className="admin-section">
-        <div className="section-header">
-          <div className="section-title-wrap">
-            <ShieldAlert className="text-danger" size={22} />
-            <h2 className="section-title">Radar de Bloqueos (Alertas)</h2>
+      <div className="admin-workspace">
+        {/* LEFT PANEL: User List */}
+        <div className="admin-sidebar">
+          <div className="sidebar-header">
+            <h3>Directorio de Practicantes</h3>
+            <div className="search-box">
+              <Search size={16} />
+              <input 
+                type="text" 
+                placeholder="Buscar usuario..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="filter-chips">
+              <button className={`chip ${filterType === 'all' ? 'active' : ''}`} onClick={() => setFilterType('all')}>Todos</button>
+              <button className={`chip ${filterType === 'active' ? 'active' : ''}`} onClick={() => setFilterType('active')}>Activos</button>
+              <button className={`chip ${filterType === 'inactive' ? 'active' : ''}`} onClick={() => setFilterType('inactive')}>Inactivos</button>
+              <button className={`chip ${filterType === 'alerts' ? 'active' : ''}`} onClick={() => setFilterType('alerts')}>Alertas</button>
+            </div>
           </div>
-          <p className="section-desc">Atención requerida para los siguientes practicantes basados en su último reporte.</p>
-        </div>
-
-        {alerts.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">✅</div>
-            <h3>Todo bajo control</h3>
-            <p>No hay alertas críticas en el radar de bloqueos en este momento.</p>
-          </div>
-        ) : (
-          <div className="alerts-grid">
-            {alerts.map(alert => (
-              <div key={alert.id} className={`alert-card ${alert.needsHelp ? 'critical' : 'warning'}`}>
-                <div className="alert-header">
-                  <div className="alert-user">
-                    <div className="alert-avatar">{alert.user.charAt(0).toUpperCase()}</div>
-                    <div>
-                      <strong>{alert.user}</strong>
-                      <span className="alert-date">{alert.date}</span>
+          
+          <div className="user-list">
+            {filteredUsers.length === 0 ? (
+              <div className="empty-users">No se encontraron usuarios.</div>
+            ) : (
+              filteredUsers.map(user => (
+                <div 
+                  key={user.username} 
+                  className={`user-list-item ${selectedUser?.username === user.username ? 'selected' : ''}`}
+                  onClick={() => handleSelectUser(user)}
+                >
+                  <div className="user-list-avatar">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ) : (
+                      user.mappedName.charAt(0).toUpperCase()
+                    )}
+                    {user.hasAlerts && <div className="alert-dot"></div>}
+                  </div>
+                  <div className="user-list-info">
+                    <div className="user-name">{user.mappedName}</div>
+                    <div className="user-meta">
+                      {user.generation === 'Jefe' ? 'Jefe' : `Gen: ${user.generation}`} • {user.bitacorasCount} bitácoras
                     </div>
                   </div>
-                  <div className="alert-badge">
-                    {alert.needsHelp ? <><AlertTriangle size={14}/> Crítico</> : 'Atención'}
+                  <ChevronRight size={16} className="text-muted" />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT PANEL: User Details & Feed */}
+        <div className="admin-main">
+          {!selectedUser ? (
+            <div className="empty-state-main">
+              <Users size={48} className="text-muted" style={{opacity: 0.5, marginBottom: '20px'}}/>
+              <h2>Selecciona un practicante</h2>
+              <p>Haz clic en un usuario del directorio para ver todo su historial de bitácoras y estado actual.</p>
+            </div>
+          ) : (
+            <div className="user-details-view animate-fade-up">
+              <div className="user-details-header">
+                <div className="user-details-title">
+                  <div className="user-list-avatar lg">
+                    {selectedUser.avatar ? (
+                      <img src={selectedUser.avatar} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ) : (
+                      selectedUser.mappedName.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <h2>{selectedUser.mappedName}</h2>
+                    <p>{selectedUser.status}</p>
+                    <div className="user-badges-mini">
+                      <span className="badge-pill bg-primary-light">{selectedUser.generation === 'Jefe' ? 'Jefe' : `Gen ${selectedUser.generation}`}</span>
+                      <span className="badge-pill bg-gray">{selectedUser.bitacorasCount} Bitácoras</span>
+                      {!selectedUser.isActive && <span className="badge-pill bg-danger-light">Inactivo</span>}
+                      {selectedUser.hasAlerts && <span className="badge-pill bg-warning-light"><AlertTriangle size={12}/> Alertas Críticas</span>}
+                    </div>
                   </div>
                 </div>
-                
-                <div className="alert-body">
-                  <p className="alert-reason">{alert.reason}</p>
-                  {alert.helpDesc && (
-                    <div className="alert-quote">"{alert.helpDesc}"</div>
-                  )}
-                </div>
-                
-                <div className="alert-actions">
-                  <button className="btn-outline-sm">Ver bitácora completa</button>
-                  <button className="btn-primary-sm">Marcar como atendido</button>
-                </div>
               </div>
-            ))}
-          </div>
-        )}
+
+              <div className="bitacora-feed">
+                <h3>Historial de Bitácoras</h3>
+                {selectedUser.bitacoras.length === 0 ? (
+                  <div className="empty-feed">
+                    <FileText size={32} />
+                    <p>Este usuario no ha registrado ninguna bitácora aún.</p>
+                  </div>
+                ) : (
+                  selectedUser.bitacoras.map(b => (
+                    <div key={b.id} className={`feed-card ${b.ayuda || ['frustrado', 'cansado'].includes(b.mood) ? 'alert-border' : ''}`}>
+                      <div className="feed-header">
+                        <div className="feed-date"><Calendar size={14}/> {b.fecha}</div>
+                        <div className="feed-mood">{getMoodEmoji(b.mood)} {b.mood}</div>
+                      </div>
+                      
+                      {b.ayuda && (
+                        <div className="feed-alert">
+                          <AlertTriangle size={14} /> Solicitud de Ayuda: {b.ayudaDesc}
+                        </div>
+                      )}
+
+                      <div className="feed-body">
+                        <div className="feed-section">
+                          <strong>Progreso de hoy:</strong>
+                          <p>{b.hechoHoy || 'Sin texto'}</p>
+                        </div>
+                        <div className="feed-section">
+                          <strong>Plan para mañana:</strong>
+                          <p>{b.hacerManana || 'Sin texto'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`
         .admin-wrapper {
           width: 100%;
-          max-width: 1000px;
+          max-width: 1200px;
           margin: 0 auto;
         }
 
@@ -148,7 +302,7 @@ const AdminPanel = () => {
         /* Metrics */
         .admin-metrics {
           display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 20px; margin-bottom: 40px;
+          gap: 20px; margin-bottom: 30px;
         }
         .metric-card {
           background: var(--bg-card); border: 1px solid var(--border);
@@ -170,74 +324,131 @@ const AdminPanel = () => {
         .metric-value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
         .metric-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; font-weight: 600; }
 
-        /* Section */
-        .admin-section {
+        /* Workspace Grid */
+        .admin-workspace {
+          display: grid;
+          grid-template-columns: 320px 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
           background: var(--bg-card); border: 1px solid var(--border);
-          border-radius: var(--radius-lg); padding: 30px;
+          border-radius: var(--radius-lg);
+          display: flex; flex-direction: column;
+          height: calc(100vh - 120px);
+          position: sticky; top: 90px;
           box-shadow: var(--shadow-sm);
         }
-        .section-header { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .section-title-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .text-danger { color: var(--danger); }
-        .section-title { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
-        .section-desc { font-size: 0.9rem; color: var(--text-muted); }
-
-        /* Empty State */
-        .empty-state { text-align: center; padding: 40px 20px; }
-        .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.8; }
-        .empty-state h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px; }
-        .empty-state p { font-size: 0.9rem; color: var(--text-muted); }
-
-        /* Alerts Grid */
-        .alerts-grid { display: flex; flex-direction: column; gap: 16px; }
-        .alert-card {
-          border: 1px solid var(--border); border-radius: var(--radius);
-          padding: 20px; background: var(--bg-body);
-          border-left: 4px solid var(--border);
+        .sidebar-header {
+          padding: 20px; border-bottom: 1px solid var(--border);
         }
-        .alert-card.critical { border-left-color: var(--danger); background: rgba(239,68,68,0.03); }
-        .alert-card.warning  { border-left-color: #f59e0b; background: rgba(245,158,11,0.03); }
+        .sidebar-header h3 { font-size: 1.1rem; margin-bottom: 16px; color: var(--text-main); }
         
-        .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .alert-user { display: flex; align-items: center; gap: 12px; }
-        .alert-avatar {
-          width: 36px; height: 36px; border-radius: 50%;
-          background: var(--primary-light); color: var(--primary);
+        .search-box {
+          position: relative; display: flex; align-items: center; margin-bottom: 16px;
+        }
+        .search-box svg { position: absolute; left: 12px; color: var(--text-muted); }
+        .search-box input {
+          width: 100%; padding: 10px 10px 10px 36px;
+          background: var(--bg-body); border: 1px solid var(--border);
+          border-radius: 8px; color: var(--text-main); font-size: 0.9rem;
+        }
+
+        .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip {
+          background: var(--bg-body); border: 1px solid var(--border);
+          padding: 4px 10px; border-radius: 99px; font-size: 0.8rem;
+          color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .user-list {
+          flex: 1; overflow-y: auto; padding: 10px;
+        }
+        .empty-users { padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+        
+        .user-list-item {
+          display: flex; align-items: center; gap: 12px; padding: 12px;
+          border-radius: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .user-list-item:hover { background: rgba(0,0,0,0.03); }
+        .user-list-item.selected { background: var(--primary-light); border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); }
+        
+        .user-list-avatar {
+          width: 40px; height: 40px; border-radius: 50%;
+          background: color-mix(in srgb, var(--primary) 20%, transparent); color: var(--primary);
           display: flex; align-items: center; justify-content: center;
-          font-weight: 700; font-size: 1rem;
+          font-weight: 700; font-size: 1.1rem; position: relative; flex-shrink: 0;
         }
-        .alert-user strong { font-size: 0.95rem; color: var(--text-main); display: block; }
-        .alert-date { font-size: 0.8rem; color: var(--text-subtle); }
+        .user-list-avatar.lg { width: 64px; height: 64px; font-size: 2rem; }
         
-        .alert-badge {
-          font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 99px;
-          display: flex; align-items: center; gap: 4px; text-transform: uppercase;
-        }
-        .critical .alert-badge { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .warning .alert-badge  { background: rgba(245,158,11,0.1); color: #f59e0b; }
-
-        .alert-body { margin-bottom: 16px; }
-        .alert-reason { font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
-        .alert-quote {
-          font-size: 0.9rem; font-style: italic; color: var(--text-muted);
-          padding: 10px 14px; background: var(--bg-card); border-left: 2px solid var(--border);
-          border-radius: 4px;
+        .alert-dot {
+          position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
+          background: var(--danger); border: 2px solid var(--bg-card); border-radius: 50%;
         }
 
-        .alert-actions { display: flex; gap: 10px; }
-        .btn-outline-sm {
-          background: transparent; border: 1px solid var(--border); color: var(--text-main);
-          padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
-          cursor: pointer; transition: all var(--transition);
+        .user-list-info { flex: 1; overflow: hidden; }
+        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+        /* Main Panel */
+        .admin-main {
+          background: var(--bg-card); border: 1px solid var(--border);
+          border-radius: var(--radius-lg); min-height: 500px;
+          box-shadow: var(--shadow-sm);
         }
-        .btn-outline-sm:hover { border-color: var(--primary); color: var(--primary); }
         
-        .btn-primary-sm {
-          background: var(--primary); border: none; color: white;
-          padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
-          cursor: pointer; transition: background var(--transition);
+        .empty-state-main {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          height: 100%; min-height: 500px; text-align: center; color: var(--text-muted); padding: 40px;
         }
-        .btn-primary-sm:hover { background: #328f49; }
+        .empty-state-main h2 { color: var(--text-main); margin-bottom: 10px; font-size: 1.5rem; }
+
+        .user-details-header {
+          padding: 30px; border-bottom: 1px solid var(--border);
+        }
+        .user-details-title { display: flex; align-items: center; gap: 20px; }
+        .user-details-title h2 { font-size: 1.8rem; margin: 0 0 5px 0; color: var(--text-main); }
+        .user-details-title p { color: var(--text-muted); font-size: 0.95rem; font-style: italic; margin: 0 0 12px 0; }
+        
+        .user-badges-mini { display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge-pill { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; text-transform: uppercase; }
+        .bg-primary-light { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
+        .bg-gray { background: color-mix(in srgb, var(--text-muted) 15%, transparent); color: var(--text-main); }
+        .bg-danger-light { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .bg-warning-light { background: rgba(245,158,11,0.1); color: #f59e0b; }
+
+        .bitacora-feed { padding: 30px; }
+        .bitacora-feed h3 { font-size: 1.2rem; margin-bottom: 20px; color: var(--text-main); }
+        
+        .empty-feed { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-feed svg { margin-bottom: 10px; opacity: 0.5; }
+
+        .feed-card {
+          background: var(--bg-body); border: 1px solid var(--border);
+          border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+        }
+        .feed-card.alert-border { border-left: 4px solid var(--danger); }
+        
+        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .feed-date { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+        .feed-mood { text-transform: capitalize; font-size: 0.9rem; font-weight: 600; }
+        
+        .feed-alert {
+          background: rgba(239,68,68,0.05); color: var(--danger); padding: 12px; border-radius: 6px;
+          display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; margin-bottom: 16px;
+        }
+        
+        .feed-body { display: flex; flex-direction: column; gap: 16px; }
+        .feed-section strong { display: block; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .feed-section p { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; white-space: pre-wrap; margin: 0; }
+
+        @media (max-width: 960px) {
+          .admin-workspace { grid-template-columns: 1fr; }
+          .admin-sidebar { height: 400px; position: static; margin-bottom: 20px; }
+        }
       `}</style>
     </div>
   );

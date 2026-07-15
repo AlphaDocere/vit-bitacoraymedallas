@@ -89,11 +89,12 @@ const Bitacora = () => {
     localStorage.setItem('practicantes_bitacoras', JSON.stringify(stored));
 
     // Send data to real MySQL Backend
-    fetch('https://test-systemauth.alphadocere.cl/api/saveLog.php', {
+    fetch('https://kreative-vit.alphadocere.cl/api/saveLog.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: userEmail,
+        user: userName,
         fecha: fecha,
         hechoHoy: hechoHoy,
         hacerManana: hacerManana,
@@ -102,7 +103,13 @@ const Bitacora = () => {
         ayudaDesc: needsHelp ? helpDesc : '',
         palabrasCount: (hechoHoy + " " + hacerManana).trim().split(/\s+/).length
       })
-    }).catch(err => console.error("Error saving to MySQL DB:", err));
+    }).then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        alert("ERROR DEL SERVIDOR AL GUARDAR: " + data.error);
+      }
+    })
+    .catch(err => alert("Error de conexión con MySQL: " + err));
 
     // Recalculate user's badges dynamically and sync fellows list immediately
     const myGen = localStorage.getItem('practicante_generation') || '17';
@@ -130,7 +137,7 @@ const Bitacora = () => {
     const isCritical = mood === 'frustrado' || mood === 'cansado' || needsHelp;
     
     if (isCritical) {
-      fetch('https://test-systemauth.alphadocere.cl/api/send_alert.php', {
+      fetch('https://kreative-vit.alphadocere.cl/api/send_alert.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +150,13 @@ const Bitacora = () => {
           hechoHoy: hechoHoy,
           hacerManana: hacerManana
         })
-      }).catch(err => console.error("Error al enviar alerta emocional:", err));
+      }).then(res => res.json())
+      .then(data => {
+        if (data.sent) {
+          showToast('success', '✅ Alerta enviada a los administradores. Pronto se pondrán en contacto contigo.');
+        }
+      })
+      .catch(err => console.error("Error al enviar alerta emocional:", err));
     }
 
     // Mensaje estándar para mantener la privacidad
@@ -157,7 +170,7 @@ const Bitacora = () => {
     // Redirect user to home to celebrate any unlocked badges immediately!
     setTimeout(() => {
       navigate('/dashboard');
-    }, 1200);
+    }, 2500);
   };
 
   return (

@@ -37,10 +37,20 @@ Kreative Vit es un sistema de bitácora diaria interna para los practicantes de 
 - 😊 **Seguimiento Emocional** — Estado de ánimo con alerta automática al líder
 - 🆘 **Solicitud de Ayuda Técnica** — Documenta bloqueos y pide asistencia
 - 🏅 **Sistema de Insignias** — 47+ logros desbloqueables por comportamiento real
-- 👥 **Directorio de Compañeros** — Ve el progreso y badges de tu generación
-- 🌙 **Dark/Light Mode** — Tema persistente por usuario
-- 📱 **Responsive** — Optimizado para móvil y escritorio
+- 👥 **Directorio de Compañeros**   **Perfil de Usuario Expandible:** Los practicantes pueden subir foto de perfil, ver su generación dinámica y configurar una frase de estado.
+*   **Panel de Administración Integral:** Interfaz exclusiva para Líderes (Jefe/Creador) con monitoreo en vivo, lecturas de historial completas por usuario, detección de inactividad e indicadores de crisis.
+*   **Gestor de Alertas de Bienestar:** Envío silencioso y en segundo plano de correos electrónicos de emergencia al equipo líder cuando un practicante reporta "frustrado", "cansado" o presiona el botón de "Necesito Ayuda", incluyendo feedback visual post-envío.
+*   **Backup Automático Inteligente:** Script PHP configurable por Cron para realizar volcados SQL programados y auto-gestionados en la raíz del servidor.
 - ⚡ **Offline-first** — Cache local en localStorage, sincroniza con MySQL al conectarse
+
+---
+
+## 🗓️ Novedades Julio 2026
+
+*   **Perfil de Usuario Expandible:** Gestión de fotos de perfil, visualización de generación y estados personalizados.
+*   **Panel de Administración:** Control total para líderes, incluyendo detección de inactividad y métricas de crisis en tiempo real.
+*   **Alertas de Emergencia:** Sistema mejorado de notificaciones por email con feedback visual inmediato para el usuario.
+*   **Backup Automatizado:** Implementación de volcados SQL mediante Cron Jobs para seguridad de datos.
 
 ---
 

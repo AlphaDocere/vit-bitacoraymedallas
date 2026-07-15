@@ -109,6 +109,20 @@ const Profile = () => {
     setTotalLogs(realTotal);
     setMyBadges(earnedBadges);
     
+    const userEmail = localStorage.getItem('practicante_email');
+    if (userEmail) {
+      fetch('https://kreative-vit.alphadocere.cl/api/updateProfile.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          status: statusMsg,
+          avatar: avatar,
+          generation: parseInt(generation)
+        })
+      }).catch(err => console.error("Error al sincronizar perfil con MySQL:", err));
+    }
+
     setIsEditing(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);

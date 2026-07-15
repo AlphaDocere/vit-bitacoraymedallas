@@ -156,7 +156,7 @@ const Companeros = () => {
                   </div>
                   <div className="fellow-info">
                     <h3>{mappedName}</h3>
-                    <span className="gen-badge">Gen {fellow.generation}</span>
+                    <span className="gen-badge">{fellow.generation === 'Jefe' ? 'Jefe' : `Gen ${fellow.generation}`}</span>
                   </div>
                 </div>
 

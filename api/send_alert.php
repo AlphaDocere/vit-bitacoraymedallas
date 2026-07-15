@@ -48,9 +48,8 @@ try {
     $conn = getAuthDbConnection();
 
     // Obtener admins de Kreative Vit (rol_id = 12)
-    // TEMPORAL: Forzar envío a Joseph Joestar según petición del usuario
     $admins = [
-        ['email' => 'rjoseeliecer@gmail.com', 'nombre' => 'Joseph Joestar']
+        ['email' => 'mrojas@alphadocere.cl', 'nombre' => 'Mauro Rojas']
     ];
 
     $subject = "⚠️ Alerta Emocional: $userName necesita apoyo";
@@ -60,33 +59,72 @@ try {
     if ($needsHelp) $motivo[] = "Solicitó ayuda activa";
     $motivoStr = implode(" | ", $motivo);
 
+    // NOTA PARA EL DESARROLLADOR: Cambiar estas URLs por las URLs públicas correctas donde estén alojadas las imágenes de producción.
+    $logoVit = "https://kreativevit.alphadocere.cl/assets/Kreative%20vit%20sin%20fondo%20letra%20negra.png"; 
+    $logoJoseph = "https://kreativevit.alphadocere.cl/insignias/insignia%20creador.png";
+    $logoMauro = "https://kreativevit.alphadocere.cl/insignias/Mauro%20rojas.png";
+
     $htmlContent = "
-    <div style='font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border-radius: 10px;'>
-        <h2 style='color: #d9534f; border-bottom: 2px solid #d9534f; padding-bottom: 10px;'>Alerta de Bienestar - Kreative Vit</h2>
-        <p>Hola,</p>
-        <p>El practicante <strong>$userName</strong> ha registrado una bitácora que requiere tu atención.</p>
+    <div style='font-family: \"Segoe UI\", Arial, sans-serif; padding: 30px; max-width: 600px; margin: 0 auto; background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'>
         
-        <div style='background-color: white; padding: 15px; border-left: 4px solid #d9534f; margin: 20px 0;'>
-            <p style='margin: 5px 0;'><strong>Fecha:</strong> $fecha</p>
-            <p style='margin: 5px 0;'><strong>Email de contacto:</strong> $userEmail</p>
-            <p style='margin: 5px 0;'><strong>Indicador:</strong> $motivoStr</p>
-        </div>
-        
-        <div style='background-color: white; padding: 15px; border: 1px solid #ddd; margin: 20px 0; border-radius: 5px;'>
-            <p style='margin-top: 0; color: #666;'><strong>Detalles de ayuda técnica solicitada:</strong></p>
-            <p style='font-style: italic; margin-bottom: 0;'>\"$helpDesc\"</p>
+        <!-- Encabezado con Logo de Kreative Vit -->
+        <div style='text-align: center; margin-bottom: 20px;'>
+            <img src='$logoVit' alt='Kreative Vit' style='max-width: 150px; height: auto;' onerror='this.style.display=\"none\"' />
         </div>
 
-        <div style='background-color: #f1f5f9; padding: 15px; border: 1px solid #cbd5e1; margin: 20px 0; border-radius: 5px;'>
-            <h3 style='margin-top: 0; color: #334155; font-size: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;'>Bitácora del Día</h3>
-            <p style='color: #475569; margin: 10px 0 5px;'><strong>¿Qué hizo hoy?</strong></p>
-            <p style='margin-top: 0;'>$hechoHoy</p>
-            <p style='color: #475569; margin: 15px 0 5px;'><strong>¿Qué hará mañana?</strong></p>
-            <p style='margin-top: 0; margin-bottom: 0;'>$hacerManana</p>
+        <div style='text-align: center; margin-bottom: 25px;'>
+            <h2 style='color: #ef4444; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;'>🚨 Alerta de Bienestar 🚨</h2>
+            <p style='color: #64748b; margin-top: 5px; font-size: 14px;'>Sistema de Monitoreo Emocional</p>
         </div>
         
-        <p>Por favor, ponte en contacto con este practicante lo antes posible para brindarle soporte.</p>
-        <p style='color: #777; font-size: 12px; margin-top: 30px; text-align: center;'>Este es un correo automático del sistema Kreative Vit.</p>
+        <p style='color: #334155; font-size: 16px;'>Hola Administradores,</p>
+        <p style='color: #334155; font-size: 16px;'>El practicante <strong style='color: #0f172a;'>$userName</strong> ha registrado una bitácora que requiere atención inmediata.</p>
+        
+        <!-- Tarjeta de Detalles de Alerta -->
+        <div style='background-color: white; padding: 20px; border-left: 5px solid #ef4444; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);'>
+            <p style='margin: 8px 0; color: #475569;'><strong style='color: #1e293b;'>📅 Fecha:</strong> $fecha</p>
+            <p style='margin: 8px 0; color: #475569;'><strong style='color: #1e293b;'>📧 Email:</strong> <a href='mailto:$userEmail' style='color: #3b82f6; text-decoration: none;'>$userEmail</a></p>
+            <p style='margin: 8px 0; color: #475569;'><strong style='color: #1e293b;'>⚠️ Indicador:</strong> $motivoStr</p>
+        </div>
+        
+        <!-- Descripción de Ayuda -->
+        <div style='background-color: #fef2f2; padding: 20px; border: 1px solid #fecaca; margin: 20px 0; border-radius: 8px;'>
+            <p style='margin-top: 0; color: #991b1b; font-weight: 600; font-size: 15px;'>Detalles de ayuda técnica solicitada:</p>
+            <p style='font-style: italic; color: #7f1d1d; margin-bottom: 0; line-height: 1.5;'>\"$helpDesc\"</p>
+        </div>
+
+        <!-- Contenido de Bitácora -->
+        <div style='background-color: #f1f5f9; padding: 20px; border: 1px solid #cbd5e1; margin: 25px 0; border-radius: 8px;'>
+            <h3 style='margin-top: 0; color: #1e293b; font-size: 16px; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px;'>📖 Bitácora del Día</h3>
+            
+            <p style='color: #0f172a; margin: 15px 0 5px; font-weight: 600;'>¿Qué hizo hoy?</p>
+            <p style='margin-top: 0; color: #475569; line-height: 1.5;'>$hechoHoy</p>
+            
+            <p style='color: #0f172a; margin: 20px 0 5px; font-weight: 600;'>¿Qué hará mañana?</p>
+            <p style='margin-top: 0; margin-bottom: 0; color: #475569; line-height: 1.5;'>$hacerManana</p>
+        </div>
+        
+        <p style='color: #334155; font-size: 15px; text-align: center; margin-top: 30px;'>Por favor, pónganse en contacto con este practicante lo antes posible para brindarle soporte.</p>
+        
+        <hr style='border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;' />
+
+        <!-- Pie de firma con logos -->
+        <table width='100%' style='margin-top: 20px;'>
+            <tr>
+                <td align='center' style='padding: 10px;'>
+                    <img src='$logoJoseph' alt='El Creador' style='width: 60px; height: 60px; border-radius: 50%; border: 2px solid #3b82f6;' onerror='this.style.display=\"none\"' />
+                    <p style='margin: 5px 0 0; font-size: 12px; color: #64748b; font-weight: 600;'>Joseph Joestar</p>
+                    <p style='margin: 0; font-size: 10px; color: #94a3b8;'>El Creador</p>
+                </td>
+                <td align='center' style='padding: 10px;'>
+                    <img src='$logoMauro' alt='Líder Alpha Docere' style='width: 60px; height: 60px; border-radius: 50%; border: 2px solid #facc15;' onerror='this.style.display=\"none\"' />
+                    <p style='margin: 5px 0 0; font-size: 12px; color: #64748b; font-weight: 600;'>Mauro Rojas</p>
+                    <p style='margin: 0; font-size: 10px; color: #94a3b8;'>Líder Supremo</p>
+                </td>
+            </tr>
+        </table>
+
+        <p style='color: #94a3b8; font-size: 11px; margin-top: 25px; text-align: center;'>Este es un correo automático generado por Kreative Vit. No responda directamente a este mensaje.</p>
     </div>
     ";
 
